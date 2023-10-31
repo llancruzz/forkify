@@ -596,13 +596,11 @@ const controlRecipe = async function() {
         // 2) Rendering recipe.
         (0, _recipeViewJsDefault.default).render(_modelJs.state.recipe);
     } catch (err) {
-        alert(err);
+        (0, _recipeViewJsDefault.default).renderError();
     }
 };
-[
-    "haschange",
-    "load"
-].forEach((ev)=>window.addEventListener(ev, controlRecipe));
+const init = ()=>(0, _recipeViewJsDefault.default).addHandlerRender(controlRecipe);
+init();
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","./model.js":"Y4A21","./views/recipeView.js":"l60JC"}],"gkKU3":[function(require,module,exports) {
 exports.interopDefault = function(a) {
@@ -2490,7 +2488,8 @@ const loadRecipe = async function(id) {
         };
         console.log(state.recipe);
     } catch (err) {
-        console.error(`${err}`);
+        console.error(`${err}\u{274C} \u{274C} \u{274C} \u{274C}`);
+        throw err;
     }
 };
 
@@ -2540,6 +2539,7 @@ var _fractional = require("fractional");
 class RecipeView {
     #parentElement = document.querySelector(".recipe");
     #data;
+    #errorMessage = "We could not find that recipe. Please try another one! \uD83D\uDD0D";
     render(data) {
         this.#data = data;
         const markup = this.#generateMarkup();
@@ -2549,7 +2549,13 @@ class RecipeView {
     #clear() {
         this.#parentElement.innerHTML = "";
     }
-    renderSpinner = ()=>{
+    addHandlerRender(handler) {
+        [
+            "haschange",
+            "load"
+        ].forEach((ev)=>window.addEventListener(ev, handler));
+    }
+    renderSpinner() {
         const markup = `
       <div class="spinner">
         <svg>
@@ -2557,9 +2563,23 @@ class RecipeView {
         </svg>
       </div> 
   `;
-        this.#parentElement.innerHTML = "";
+        this.#clear();
         this.#parentElement.insertAdjacentHTML("afterbegin", markup);
-    };
+    }
+    renderError(message = this.#errorMessage) {
+        const markup = `
+      <div class="error">
+        <div>
+         <svg>
+          <use href="${(0, _iconsSvgDefault.default)}#icon-alert-triangle"></use>
+         </svg>
+        </div>
+        <p>${message}</p>
+      </div>
+    `;
+        this.#clear();
+        this.#parentElement.insertAdjacentHTML("afterbegin", markup);
+    }
     #generateMarkup() {
         return `
       <figure class="recipe__fig">
