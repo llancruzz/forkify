@@ -1,12 +1,17 @@
-import { async } from "regenerator-runtime";
 import * as model from "./model.js";
 import recipeView from "./views/recipeView.js";
 import searchView from "./views/searchView.js";
+import resultsView from "./views/resultsView.js";
 
 import "core-js/stable"; // Polyfilling everything
 import "regenerator-runtime/runtime"; // Polyfilling async/await
+import { async } from "regenerator-runtime";
 
-const controlRecipe = async function () {
+if (module.hot) {
+  module.hot.accept();
+}
+
+const controlRecipes = async function () {
   try {
     const id = window.location.hash.slice(1);
     //console.log(id);
@@ -27,6 +32,8 @@ const controlRecipe = async function () {
 
 const controlSearchResults = async function () {
   try {
+    resultsView.renderSpinner();
+
     // 1) Get search query
     const query = searchView.getQuery();
     if (!query) return;
@@ -35,14 +42,18 @@ const controlSearchResults = async function () {
     await model.loadSearchResults(query);
 
     // 3) Render results
-    console.log(model.state.search.results);
+    //console.log(model.state.search.results);
+    resultsView.render(model.state.search.results);
   } catch (err) {
     console.error(err);
   }
 };
 
 const init = () => {
-  recipeView.addHandlerRender(controlRecipe);
+  recipeView.addHandlerRender(controlRecipes);
   searchView.addHandlerSearch(controlSearchResults);
 };
 init();
+
+// window.addEventListener("hashchange", controlRecipes);
+// window.addEventListener("load", controlRecipes);
