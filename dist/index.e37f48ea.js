@@ -2580,7 +2580,7 @@ const timeout = function(s) {
 };
 const getJSON = async function(url) {
     try {
-        const fetchPromise = fetch(url);
+        const fetchPromise = await fetch(url);
         const response = await Promise.race([
             fetchPromise,
             timeout((0, _configJs.TIMEOUT_SEC))
@@ -3095,7 +3095,6 @@ class ResultsView extends (0, _viewJsDefault.default) {
     _errorMessage = "No recipes found for your query! Please try again! \uD83D\uDD0D";
     _message = "";
     _generateMarkup() {
-        //console.log(this._data);
         return this._data.map(this._generateMarkupPreview).join("");
     }
     _generateMarkupPreview(result) {
